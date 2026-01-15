@@ -1,0 +1,186 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+
+\usepackage{soul}
+
+\usepackage[left=1.5cm,right=1.5cm,top=1.5cm,bottom=1.5cm]{geometry}
+
+\usepackage[pdfencoding=unicode, psdextra, citecolor=blue, urlcolor=blue,
+linkcolor=blue, colorlinks=true, bookmarksopen=true]{hyperref}
+
+\usepackage{comment}
+
+\usepackage{setspace}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{csquotes}
+
+%\usepackage{tikz}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\pd}{\partial}
+\newcommand{\norm}[1]{\lVert #1 \rVert}
+\newcommand{\eqdef}{\stackrel{\mathrm{def}}{=}}
+
+\DeclareMathOperator{\const}{const}
+\DeclareMathOperator{\graph}{graph}
+\DeclareMathOperator{\dom}{dom}
+%\newcommand{\graphonex}{\graph^1x(\cdot)}
+
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+\newtheorem{assumption}{Assumption}
+
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+
+
+\sloppy
+
+\title{}
+\author{}
+\date{}
+
+\begin{document}
+
+\section{Introduction}
+
+This text is an attempt to prove the impossibility of a push limit $2$ slime machine. Consequently, the reader is supposed to be familiar with game mechanics and jargon. The game mechanics are formal enough as they are written in code. For the sake of readability, I will not refer to actual code snippets every time I mention a game mechanic. For example, I would prefer saying ``redstone block activates redstone components'' instead of referencing actual code that handles that.
+We additionally make these assumptions:
+\begin{itemize}
+\item The world is infinite in all directions, unlike actual minecraft worlds
+\item In this text we do not account for any precision artifacts of float numbers and work with proper real numbers ($\R$)
+\item Random number generation (RNG) is non-deterministic and truly random
+\end{itemize}
+
+\section{Crafting a formal definition for flying machines}
+
+\begin{definition}
+    A \emph{structure} is any non-empty set of blocks and entities, where \emph{blocks} and \emph{entities} refer to objects with position, state, and other data, such as velocity, in the case of entities.
+\end{definition}
+
+\begin{definition}
+    Let us define the \emph{bounding box} of a structure. Denote by $\mathcal{P}$ the following set: $\bigl\{I_1\times I_2\times I_3 \mid I_j=(a,b)\cap\Z;\ a,b\in\Z\cup\{\pm\infty\}\bigr\}$. For example, $\{0,1,2\}\times\{0,1\}\times\Z$ belongs to $\mathcal{P}$.
+    
+    The bounding box of a structure $S$ is the smallest prism from $\mathcal{P}$ by inclusion, such that it contains $S$.
+\end{definition}
+
+\begin{definition}
+    A structure is \emph{finite} if it has a bounding box with finite dimensions. Otherwise, it is \emph{infinite}.
+\end{definition}
+
+\begin{definition}
+    The vacuum is a completely empty world with $doDayLightCycle=false$, $doWeatherCycle=false$, $randomTickSpeed=0$, $doMobSpawning=false$, all chunks being force loaded. The rest of the settings are default. The game difficulty may vary depending on context.
+\end{definition}
+
+\begin{definition}
+    Let $S$ be a structure. Given $v \in \R^3$, the notation $S + v$ means a new structure obtained from $S$ by translating all objects in it by $v$. If $t \in \N$, we denote by $T(S, t)$ a new structure obtained by evaluating $S$ in the vacuum for $t$ complete ticks. Here $\N$ is the set of strictly positive integers.
+\end{definition}
+
+\begin{definition}
+    A \emph{periodic flying machine} (or \emph{PFM}) is any structure such that there exist $t \in \N, v \in \Z^3$, satisfying $S + v = T(S, t)$, where the equality is to be understood as the equality of sets.
+\end{definition}
+
+\begin{definition}
+    A periodic flying machine is \emph{stationary} if $v$ can be chosen as $(0, 0, 0)$. Otherwise, it is \emph{non-stationary} and such machines will be often referred to as \emph{NPFM}.
+\end{definition}
+
+\begin{remark}
+    Our definition of a PFM includes all sorts of static structures that have nothing to do with slimestone. Even more concerning, it excludes many actual slime machines. For example, there exists a slime machine that moves along X axis between docking stations $A$ and $B$, and each time it docks with $B$, the station increases the X coordinate by $1$. However, this does not actually make the definition worthless. The aforementioned machine is simply a disjoint union of $3$ periodic flying machines: $2$ docking stations and one engine. The stations are stationary periodic flying machines with $t = 1, v = (0, 0, 0)$, which happen to move upon some perturbations from outside (in vacuum they do not happen, so formally the stations are indeed stationary). The engine can be viewed as an NPFM with $t = 10, v = (1, 0, 0)$.
+\end{remark}
+
+\begin{remark} \label{falling_blocks}
+    Note that according to our definition falling sand is not a periodic flying machine. The reason is that the state of a falling block includes a lifetime variable, which strictly increases with each game tick and hence $T(S, t) \neq S + (0, y, 0)$ for any $t \in \N, y \in \R$.
+\end{remark}
+
+At this point we could introduce ``formal flying machines'' as disjoint unions of periodic flying machines, but this is pointless because this class would include almost all (if not all) possible structures, because a singular block placed in vacuum acts like a stationary periodic machine, unless it is a gravity block. In reality, all slime machines that are of any interest contain at least one NPFM. This reduces the question to investigating only NPFMs.
+
+We further analyze finite NPFMs, as infinite machines are less interesting in a certain sense. For example, an infinite line of, say, glass parallel to X axis is formally an NPFM with $t = 1, v = (1, 0, 0)$, or even arbitrary $t$ and $v = (n, 0, 0), \ n\in\Z\setminus\{0\}$. And this is the problem with all periodic stationary patterns.
+
+\subsection{Choosing a feasible subclass of NPFMs}
+
+The simplest example of a finite NPFM is any finite set of vertical water or lava streams. However, this is rather boring. Conventionally, let us consider only NPFMs that do not use liquids.
+
+For the same reason, I suggest disregarding entities from discussion, at least for now. That is because they tend to produce too many edge cases, not to mention that there are examples such as falling minecarts, fireballs, and wither projectiles.
+
+\section{General engines}
+
+\begin{definition}
+    Define $E$ as the set of all finite NPFMs without liquids, entities, and command blocks. The letter $E$ was chosen because it is effectively the set of engines.
+\end{definition}
+
+\begin{remark}
+    Under our assumptions, any structure $S$ from $E$ is deterministic. In other words, given a structure at a fixed tick, we can always evaluate the state at any future tick using all block states of $S$. Consequently, the condition $S+v=T(S,t)$ from the definition of PFM guarantees that $S+2v=T(S+v,t)$, $S+3v=T(S+2v,t)$, etc.
+\end{remark}
+
+\begin{definition}
+    Given $S \in E$, define the \emph{period of $S$} as the smallest number $t\in\N$ such that there exists $v\in\Z^3\setminus\{(0,0,0)\}$ and $S+v=T(S,t)$. We will use the following notation: $P(S):=t$.
+\end{definition}
+
+It is now useful to rethink "motion". Currently, we can only track blocks from $S$ in intervals of $t=P(S)$ ticks. We know nothing about intermediate states of $S$, say, after $t-1$ ticks, when $t>1$. It could be air, it could be a single block of dirt. We have to figure out the way blocks move in such machines.
+
+What if a structure $S$ from $E$ "moves" by disappearing and re-appearing after $P(S)$ ticks somewhere else? An important note is that we do not count conversion of blocks to moving block entities as "disappearing". This motivates the following lemma.
+
+\begin{lemma}
+    Let $S \in E$. Then any non-gravity block in $S$ changes position only after being pushed or pulled, either directly, or by other blocks being pushed or pulled.
+\end{lemma}
+\begin{proof}
+    ...
+\end{proof}
+
+\begin{lemma}
+    Any engine must not contain immovable blocks except active pistons.
+\end{lemma}
+\begin{proof}
+    ...
+\end{proof}
+
+\begin{lemma}
+    Any engine must contain at least two pistons.
+\end{lemma}
+\begin{proof}
+    % Consider $S \in E$. Since it is an NPFM, at least one block must move, otherwise it would be stationary and hence not belong to $E$. Under our restrictions, it is now enough to verify that there are no blocks in the game that can move without a piston, as of v1.21.11. It is indeed the case, as can be shown by investigating every block in the game. Free falling gravity blocks are not periodic, as was pointed out in remark \ref{falling_blocks}. If a gravity block rests, it can move down if and only if the supporting block moves or disappears. However, if a block disappears, it violates the periodicity condition, unless it is restored later. The only blocks that can appear without players, entities, weather, and random ticks are powdered snow and shulker boxes (once again, can be verified by brute force). However, these blocks require dispensers which are immovable.
+
+    % We have proved the existence of a piston in $S$. However, it can not rest indefinitely and must be moved. It never moves itself due to being immovable upon activation. Hence another piston must exist in $S$.
+    ...
+\end{proof}
+
+\section{Push limit 2 engines}
+
+\begin{definition}
+    Denote by $E_2$ the set $E$ defined under the assumption that push limit is $2$.
+\end{definition}
+
+\begin{lemma}
+    Any engine from $E_2$ must have at least one sticky piston.
+\end{lemma}
+\begin{proof}
+    ...
+\end{proof}
+
+\begin{remark}
+    Note that this lemma is wrong for larger push limits. It is easy to build an engine without sticky pistons with the default push limit of $12$.
+\end{remark}
+
+If we want to move a block at $(x_0,y_0,z_0)$ directly with a regular piston (wlog towards positive $x$), we can do that if this piston is at one of $(x_0-1,y_0,z_0), (x_0-2,y_0,z_0), (x_0-1,y_0\pm1,z_0), (x_0-1,y_0,z_0\pm1)$. In particular, case 2 requires an intermediate block at $(x_0-1,y_0,z_0)$, and cases $3-6$ require slime or honey. But most importantly, in all $6$ cases we are forced to put a piston somewhere in the $\{x \le x_0-1\}$ half space.
+
+If we want to pull a block at $(x_1,y_1,z_1)$ with a sticky piston, say, towards positive $x$, we can only do that if the sticky piston is at one of $(x_1+2,y_1,z_1), (x_1+3,y_1,z_1), (x_1+2,y_1\pm1,z_1), (x_1+2,y_1,z_1\pm1)$. In all cases except the first one we need a slime block or a honey block. Note that we always have to put the piston somewhere in $\{x\ge x_1+2\}$.
+Similar reasoning can be applied to any axis in any direction, up to a change of sign.
+
+\end{document}
