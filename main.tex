@@ -26,14 +26,9 @@ linkcolor=blue, colorlinks=true, bookmarksopen=true]{hyperref}
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\eps}{\varepsilon}
 \newcommand{\pd}{\partial}
+\newcommand{\ev}{\mathcal{E}}
 \newcommand{\norm}[1]{\lVert #1 \rVert}
 \newcommand{\eqdef}{\stackrel{\mathrm{def}}{=}}
-
-\DeclareMathOperator{\const}{const}
-\DeclareMathOperator{\graph}{graph}
-\DeclareMathOperator{\dom}{dom}
-%\newcommand{\graphonex}{\graph^1x(\cdot)}
-
 
 
 \newtheorem{theorem}{Theorem}
@@ -61,8 +56,10 @@ linkcolor=blue, colorlinks=true, bookmarksopen=true]{hyperref}
 
 \section{Introduction}
 
-This text is an attempt to prove the impossibility of a push limit $2$ slime machine. Consequently, the reader is supposed to be familiar with game mechanics and jargon. The game mechanics are formal enough as they are written in code. For the sake of readability, I will not refer to actual code snippets every time I mention a game mechanic. For example, I would prefer saying ``redstone block activates redstone components'' instead of referencing actual code that handles that.
-We additionally make these assumptions:
+This text is an attempt to mathematically formalize Minecraft flying machines to ultimately prove that push limit $1$ flying machines do not exist.
+The reader is supposed to be familiar with game mechanics and jargon. The game mechanics are formal enough as they are written in code.
+However, we will try to create a sufficiently simplified model of the game to make the task more feasible.
+For example, we make these assumptions right away:
 \begin{itemize}
 \item The world is infinite in all directions, unlike actual minecraft worlds
 \item In this text we do not account for any precision artifacts of float numbers and work with proper real numbers ($\R$)
@@ -72,12 +69,14 @@ We additionally make these assumptions:
 \section{Crafting a formal definition for flying machines}
 
 \begin{definition}
-    A \emph{structure} is any non-empty set of blocks and entities, where \emph{blocks} and \emph{entities} refer to objects with position, state, and other data, such as velocity, in the case of entities.
+    A \emph{structure} is a pair of sets $(B, E)$, where $B$ is a non-empty set of blocks with unique positions, and $E$ is any set of entities.
+    Here \emph{blocks} and \emph{entities} are treated as objects with position, state, and other data that would be provided by the game.
 \end{definition}
 
 \begin{definition}
-    Let us define the \emph{bounding box} of a structure. Denote by $\mathcal{P}$ the following set: $\bigl\{I_1\times I_2\times I_3 \mid I_j=(a,b)\cap\Z;\ a,b\in\Z\cup\{\pm\infty\}\bigr\}$. For example, $\{0,1,2\}\times\{0,1\}\times\Z$ belongs to $\mathcal{P}$.
-    
+    Let us define the \emph{bounding box} of a structure. Denote by $\mathcal{P}$ the following set:
+    $\bigl\{I_1\times I_2\times I_3 \mid I_j=(a,b)\cap\Z;\ a,b\in\Z\cup\{\pm\infty\}\bigr\}$. For example, $\{0,1,2\}\times\{0,1\}\times\Z$ belongs to $\mathcal{P}$.
+
     The bounding box of a structure $S$ is the smallest prism from $\mathcal{P}$ by inclusion, such that it contains $S$.
 \end{definition}
 
@@ -86,15 +85,32 @@ We additionally make these assumptions:
 \end{definition}
 
 \begin{definition}
-    The vacuum is a completely empty world with $doDayLightCycle=false$, $doWeatherCycle=false$, $randomTickSpeed=0$, $doMobSpawning=false$, all chunks being force loaded. The rest of the settings are default. The game difficulty may vary depending on context.
+    We denote by \emph{vacuum} a completely empty world with $doDayLightCycle=false$, $doWeatherCycle=false$, $randomTickSpeed=0$, $doMobSpawning=false$, all chunks being force loaded. The rest of the settings are default. The game difficulty may vary depending on context.
 \end{definition}
 
 \begin{definition}
-    Let $S$ be a structure. Given $v \in \R^3$, the notation $S + v$ means a new structure obtained from $S$ by translating all objects in it by $v$. If $t \in \N$, we denote by $T(S, t)$ a new structure obtained by evaluating $S$ in the vacuum for $t$ complete ticks. Here $\N$ is the set of strictly positive integers.
+    Let $S$ be a structure. Given $v \in \Z^3$, the notation $S + v$ means a new structure obtained from $S$ by translating all objects in it by $v$.
+    If $t \in \N_0:=\N\cup\{0\}$, we denote by $\ev_t(S)$ (or just $\ev_tS$) a new structure obtained by evaluating $S$ in vacuum for $t$ game ticks.
 \end{definition}
 
+\subsection{Clarifications on random events}
+
+In the beginning of the text I postulated true randomness, but let me elaborate what that actually means.
+Upon creating a vacuum world, we also generate a \emph{truly random sequence} of integers $(r_n)$.
+We then postulate that $n$-th call of ``random'' simply yields $r_n$. This effectively makes all game events deterministic; however, our sequence $(r_n)$ generally lacks periodicity, unlike the pseudo random sequences that the actual game uses.
+This point of view is convenient for preventing certain structures from being formally periodic in time.
+
+\begin{proposition}
+    $\bigl\{\ev_t\mid t\in\N_0\bigr\}$ endowed with composition operation is a commutative monoid.
+    That is, the composition of evaluations is associative, $\ev_0=Id$, and
+    $$\ev_t\ev_s=\ev_s\ev_t=\ev_{t+s}.$$
+\end{proposition}
+
+\subsection{Formal periodic flying machines}
+
 \begin{definition}
-    A \emph{periodic flying machine} (or \emph{PFM}) is any structure such that there exist $t \in \N, v \in \Z^3$, satisfying $S + v = T(S, t)$, where the equality is to be understood as the equality of sets.
+    A \emph{periodic flying machine} (or \emph{PFM}) is any structure such that there exist $t \in \N, v \in \Z^3$, satisfying
+    $$\ev_{t_0}S + v = \ev_{t_0+t}S \quad \forall t_0\in\N_0,\ \forall (r_n),$$ where the equality is to be understood as the equality of sets. Here $(r_n)$ is the random sequence associated with the world.
 \end{definition}
 
 \begin{definition}
@@ -102,22 +118,31 @@ We additionally make these assumptions:
 \end{definition}
 
 \begin{remark}
-    Our definition of a PFM includes all sorts of static structures that have nothing to do with slimestone. Even more concerning, it excludes many actual slime machines. For example, there exists a slime machine that moves along X axis between docking stations $A$ and $B$, and each time it docks with $B$, the station increases the X coordinate by $1$. However, this does not actually make the definition worthless. The aforementioned machine is simply a disjoint union of $3$ periodic flying machines: $2$ docking stations and one engine. The stations are stationary periodic flying machines with $t = 1, v = (0, 0, 0)$, which happen to move upon some perturbations from outside (in vacuum they do not happen, so formally the stations are indeed stationary). The engine can be viewed as an NPFM with $t = 10, v = (1, 0, 0)$.
+    We assume that objects in structures store enough data for the game to calculate the exact state of any structure after $1$ tick using only that data and $(r_n)$.
+\end{remark}
+
+\begin{remark}
+    Our definition of a PFM includes all sorts of static structures that have nothing to do with slimestone.
+    Even more concerning, it excludes many actual flying machines. For example, there exists a slime machine that moves along X axis between docking stations $A$ and $B$, and each time it docks with $B$, the station increases the X coordinate by $1$. However, this does not actually make the definition worthless. The aforementioned machine is simply a disjoint union of $3$ periodic flying machines: $2$ docking stations and one engine. The stations are stationary periodic flying machines with $t = 1, v = (0, 0, 0)$, which happen to move upon some perturbations from outside (in vacuum they do not happen, so formally the stations are indeed stationary). The engine can be viewed as an NPFM with $t = 10, v = (1, 0, 0)$.
 \end{remark}
 
 \begin{remark} \label{falling_blocks}
-    Note that according to our definition falling sand is not a periodic flying machine. The reason is that the state of a falling block includes a lifetime variable, which strictly increases with each game tick and hence $T(S, t) \neq S + (0, y, 0)$ for any $t \in \N, y \in \R$.
+    Note that according to our definition, falling sand is not a periodic flying machine.
+    The reason is that the state of a falling block includes a lifetime variable, which strictly increases with each game tick and hence $\ev_tS \neq S+v$ for any $t \in \N, v \in \Z^3$.
+    Lazy chunk shenanigans are not of any use, because we assume that all chunks are forceloaded.
 \end{remark}
 
-At this point we could introduce ``formal flying machines'' as disjoint unions of periodic flying machines, but this is pointless because this class would include almost all (if not all) possible structures, because a singular block placed in vacuum acts like a stationary periodic machine, unless it is a gravity block. In reality, all slime machines that are of any interest contain at least one NPFM. This reduces the question to investigating only NPFMs.
+At this point we could introduce ``formal flying machines'' as disjoint unions of periodic flying machines, but this is pointless because this class would include a ridiculous amount of possible structures, because a singular block placed in vacuum acts like a stationary periodic machine, unless it is a gravity block.
+In practice, all slime machines that are of any interest contain at least one NPFM. This reduces the question to investigating only NPFMs.
 
-We further analyze finite NPFMs, as infinite machines are less interesting in a certain sense. For example, an infinite line of, say, glass parallel to X axis is formally an NPFM with $t = 1, v = (1, 0, 0)$, or even arbitrary $t$ and $v = (n, 0, 0), \ n\in\Z\setminus\{0\}$. And this is the problem with all periodic stationary patterns.
+For now let us focus on analyzing finite NPFMs.
 
 \subsection{Choosing a feasible subclass of NPFMs}
 
-The simplest example of a finite NPFM is any finite set of vertical water or lava streams. However, this is rather boring. Conventionally, let us consider only NPFMs that do not use liquids.
+The simplest example of a finite NPFM is any finite set of vertical flowing water or lava blocks. However, this is rather boring. Conventionally, let us consider only NPFMs that do not use liquids.
 
-For the same reason, I suggest disregarding entities from discussion, at least for now. That is because they tend to produce too many edge cases, not to mention that there are examples such as falling minecarts, fireballs, and wither projectiles.
+For the same reason, I suggest disregarding entities from discussion, at least for now. That is because they add too much complexity to an already difficult task,
+not to mention that there are examples such as falling minecarts, fireballs, and wither projectiles.
 
 \section{General engines}
 
@@ -125,17 +150,16 @@ For the same reason, I suggest disregarding entities from discussion, at least f
     Define $E$ as the set of all finite NPFMs without liquids, entities, and command blocks. The letter $E$ was chosen because it is effectively the set of engines.
 \end{definition}
 
-\begin{remark}
-    Under our assumptions, any structure $S$ from $E$ is deterministic. In other words, given a structure at a fixed tick, we can always evaluate the state at any future tick using all block states of $S$. Consequently, the condition $S+v=T(S,t)$ from the definition of PFM guarantees that $S+2v=T(S+v,t)$, $S+3v=T(S+2v,t)$, etc.
-\end{remark}
-
 \begin{definition}
-    Given $S \in E$, define the \emph{period of $S$} as the smallest number $t\in\N$ such that there exists $v\in\Z^3\setminus\{(0,0,0)\}$ and $S+v=T(S,t)$. We will use the following notation: $P(S):=t$.
+    Given $S \in E$, define the \emph{period of $S$} as the smallest number $t\in\N$ for which there exists $v\in\Z^3\setminus\{(0,0,0)\}$, such that $S+v=\ev_tS$.
+    We will use the following notation for periods: $P(S):=t$.
 \end{definition}
 
-It is now useful to rethink "motion". Currently, we can only track blocks from $S$ in intervals of $t=P(S)$ ticks. We know nothing about intermediate states of $S$, say, after $t-1$ ticks, when $t>1$. It could be air, it could be a single block of dirt. We have to figure out the way blocks move in such machines.
+\subsection{TODO}
+It is now useful to rethink ``motion''. Currently, we can only track blocks from $S$ in intervals of $t=P(S)$ ticks. We know nothing about intermediate states of $S$, say, after $t-1$ ticks, when $t>1$. It could be air, it could be a single block of dirt. We have to figure out the way blocks move in such machines.
 
-What if a structure $S$ from $E$ "moves" by disappearing and re-appearing after $P(S)$ ticks somewhere else? An important note is that we do not count conversion of blocks to moving block entities as "disappearing". This motivates the following lemma.
+What if a structure $S$ from $E$ ``moves'' by disappearing and re-appearing after $P(S)$ ticks somewhere else?
+This isn't far from truth: blocks that are being moved by pistons temporarily convert to b36.
 
 \begin{lemma}
     Let $S \in E$. Then any non-gravity block in $S$ changes position only after being pushed or pulled, either directly, or by other blocks being pushed or pulled.
@@ -145,7 +169,7 @@ What if a structure $S$ from $E$ "moves" by disappearing and re-appearing after 
 \end{proof}
 
 \begin{lemma}
-    Any engine must not contain immovable blocks except active pistons.
+    Any engine must not contain immovable blocks except b36.
 \end{lemma}
 \begin{proof}
     ...
@@ -161,14 +185,14 @@ What if a structure $S$ from $E$ "moves" by disappearing and re-appearing after 
     ...
 \end{proof}
 
-\section{Push limit 2 engines}
+\section{Push limit 1 engines}
 
 \begin{definition}
-    Denote by $E_2$ the set $E$ defined under the assumption that push limit is $2$.
+    Denote by $E_1$ the set $E$ defined under the assumption that push limit is $1$.
 \end{definition}
 
 \begin{lemma}
-    Any engine from $E_2$ must have at least one sticky piston.
+    Any engine from $E_1$ must have at least one sticky piston.
 \end{lemma}
 \begin{proof}
     ...
@@ -177,10 +201,5 @@ What if a structure $S$ from $E$ "moves" by disappearing and re-appearing after 
 \begin{remark}
     Note that this lemma is wrong for larger push limits. It is easy to build an engine without sticky pistons with the default push limit of $12$.
 \end{remark}
-
-If we want to move a block at $(x_0,y_0,z_0)$ directly with a regular piston (wlog towards positive $x$), we can do that if this piston is at one of $(x_0-1,y_0,z_0), (x_0-2,y_0,z_0), (x_0-1,y_0\pm1,z_0), (x_0-1,y_0,z_0\pm1)$. In particular, case 2 requires an intermediate block at $(x_0-1,y_0,z_0)$, and cases $3-6$ require slime or honey. But most importantly, in all $6$ cases we are forced to put a piston somewhere in the $\{x \le x_0-1\}$ half space.
-
-If we want to pull a block at $(x_1,y_1,z_1)$ with a sticky piston, say, towards positive $x$, we can only do that if the sticky piston is at one of $(x_1+2,y_1,z_1), (x_1+3,y_1,z_1), (x_1+2,y_1\pm1,z_1), (x_1+2,y_1,z_1\pm1)$. In all cases except the first one we need a slime block or a honey block. Note that we always have to put the piston somewhere in $\{x\ge x_1+2\}$.
-Similar reasoning can be applied to any axis in any direction, up to a change of sign.
 
 \end{document}
