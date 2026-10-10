@@ -246,8 +246,9 @@ One cycle of that engine takes $278$ moves to travel $1$ block towards $+x$.
 
 \subsection{Example 4: Game of Pistons 2 (GoP2)}
 Recall that $D=\{\pm e_x, \pm e_y, \pm e_z\}$ and define
-$$\Sigma=\{P_d : d \in D\} \cup \{O_d : d \in D\} \cup \{\varnothing, H\}.$$
-$H$ stands for ``hard-powerable block'', and $O_f$ stand for ``observers''. Similarly to \ref{example:gop1}, we will have activation rules, but this time they're more restrictive. Let
+$$\Sigma=\{P_d^0, P_d^1 : d \in D\} \cup \{O_d : d \in D\} \cup \{\varnothing, H\}.$$
+$P_d^\eps$ is a piston facing $d$, extended iif $\eps=1$, $H$ stands for ``hard-powerable block''.
+$O_f$ at $q$ is an ``observer'' that outputs to $q-f$. Similarly to \ref{example:gop1}, we will have activation rules, but this time they're more restrictive. Let
 $$A=D\cup(D+e_y)\setminus\{0\}.$$
 Fix a structure $S: \Z^3\to\Sigma$, and suppose $S(p)=P_d$ for some $p\in\Z^3$, $d\in D$.
 This piston is active if and only if one of the following conditions are met:
@@ -256,7 +257,16 @@ This piston is active if and only if one of the following conditions are met:
     \item There exists $f\in D\setminus\{-e_y\}$ such that $S(p+e_y+f)=O_f$.
     \item There exist $q\in p+(A\setminus\{d\})$ and $f\in D$, such that $S(q)=H$ and $S(q+f)=O_f$.
 \end{enumerate}
-Only active pistons may push or pull.
+Only active pistons may become extended. Define the set of movable states as
+$$\text{Mov}=\Sigma\setminus\{P_d^1 : d \in D\}.$$
+Let $S(p)=P_d^\eps$. Write $S[\text{pos}\mapsto\text{new state}, \dots]$ to denote the structure obtained from $S$ by modifying states at the listed positions.
+\begin{enumerate}
+    \item[(E1)] If $p$ is active, $\eps=0$ and $S(p+d)=\varnothing$: $S\rightsquigarrow S[p\mapsto P_d^1]$.
+    \item[(E2)] If $p$ is active, $\eps=0$, $S(p+d)=B\in\text{Mov}$ and $S(p+2d)=\varnothing$: $S\rightsquigarrow S[p\mapsto P_d^1, p+d\mapsto\varnothing, p+2d\mapsto B]$.
+    \item[(R1)] If $\eps=1$: $S\rightsquigarrow S[p\mapsto P_d^0]$.
+    \item[(R2)] If $\eps=1$, $S(p+d)=\varnothing$ and $S(p+2d)=B\in\text{Mov}$: $S\rightsquigarrow S[p\mapsto P_d^0, p+d\mapsto B, p+2d\mapsto\varnothing]$.
+\end{enumerate}
+Moves are made one at a time, in any order.
 
 A careful reader experienced in Minecraft may notice that this rule set does not encode any abstraction of redstone blocks. Indeed, it doesn't.
 However, if non-existence of an engine in this model is proven, then necessarily all engines in the vanilla model must have redstone blocks.
