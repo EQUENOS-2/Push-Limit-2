@@ -201,7 +201,7 @@ Let us summarize what we have so far. Since we disregarded liquids, entities, an
     \item $\ev_1$ deterministically evaluates the next state of any structure according to some rule set matching the vanilla Minecraft with push limit $1$.
     \item Engines are defined as structures with finite support that satisfy $\ev_T S=S+v$ for some $T\in\N$ and $v\in\Z^3\setminus0$.
 \end{enumerate}
-We encode escheduled ticks into the alphabet, and the order of their execution into $\ev$.
+We encode scheduled ticks into the alphabet, and the order of their execution into $\ev$.
 Let's call this the \emph{vanilla model}. The ultimate goal is to prove that engines do not exist. The idea is to create a simplified model of Minecraft that would satisfy these properties:
 \begin{enumerate}
     \item Any valid engine in the vanilla model must induce a valid engine in the simple model.
@@ -235,7 +235,7 @@ Turns out that such engines also exist, so this model is not of any value.
 
 \subsection{Example 3: Game of Pistons 1 (GoP1)} \label{example:gop1}
 Define $$\Sigma=\{P_d : d \in D\} \cup \{\varnothing, R\},$$
-where $R$ represents a very simplified model of a power source. To describe how it interacts pistons, define
+where $R$ represents a very simplified model of a power source. To describe how it interacts with pistons, define
 $$A=D\cup(D+e_y)\setminus\{0\}.$$
 In a structure $S$, a piston $P_d$ at $p$ is \emph{active} if and only if there exists $q \in p+(A\setminus\{d\})$, such that $S(q)=R$.
 Active pistons can make moves according to the rule set of \ref{example:1}, by pushing and pulling blocks.
