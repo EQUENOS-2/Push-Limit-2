@@ -156,50 +156,109 @@ not to mention that there are examples such as falling minecarts, fireballs, and
 \end{definition}
 
 \subsection{TODO}
-It is now useful to rethink ``motion''. Currently, we can only track blocks from $S$ in intervals of $t=P(S)$ ticks. We know nothing about intermediate states of $S$, say, after $t-1$ ticks, when $t>1$. It could be air, it could be a single block of dirt. We have to figure out the way blocks move in such machines.
+Show that in any structure from $E$, any movement of a block is caused by pistons pushing or pulling it.
 
-What if a structure $S$ from $E$ ``moves'' by disappearing and re-appearing after $P(S)$ ticks somewhere else?
-This isn't far from truth: blocks that are being moved by pistons temporarily convert to b36.
+% It is now useful to rethink ``motion''. Currently, we can only track blocks from $S$ in intervals of $t=P(S)$ ticks. We know nothing about intermediate states of $S$, say, after $t-1$ ticks, when $t>1$. It could be air, it could be a single block of dirt. We have to figure out the way blocks move in such machines.
 
-\begin{lemma}
-    Let $S \in E$. Then any non-gravity block in $S$ changes position only after being pushed or pulled, either directly, or by other blocks being pushed or pulled.
-\end{lemma}
-\begin{proof}
-    ...
-\end{proof}
+% What if a structure $S$ from $E$ ``moves'' by disappearing and re-appearing after $P(S)$ ticks somewhere else?
+% This isn't far from truth: blocks that are being moved by pistons temporarily convert to b36.
 
-\begin{lemma}
-    Any engine must not contain immovable blocks except b36.
-\end{lemma}
-\begin{proof}
-    ...
-\end{proof}
+% \begin{lemma}
+%     Let $S \in E$. Then any non-gravity block in $S$ changes position only after being pushed or pulled, either directly, or by other blocks being pushed or pulled.
+% \end{lemma}
 
-\begin{lemma}
-    Any engine must contain at least two pistons.
-\end{lemma}
-\begin{proof}
-    % Consider $S \in E$. Since it is an NPFM, at least one block must move, otherwise it would be stationary and hence not belong to $E$. Under our restrictions, it is now enough to verify that there are no blocks in the game that can move without a piston, as of v1.21.11. It is indeed the case, as can be shown by investigating every block in the game. Free falling gravity blocks are not periodic, as was pointed out in remark \ref{falling_blocks}. If a gravity block rests, it can move down if and only if the supporting block moves or disappears. However, if a block disappears, it violates the periodicity condition, unless it is restored later. The only blocks that can appear without players, entities, weather, and random ticks are powdered snow and shulker boxes (once again, can be verified by brute force). However, these blocks require dispensers which are immovable.
+% \begin{lemma}
+%     Any engine must not contain immovable blocks except b36.
+% \end{lemma}
 
-    % We have proved the existence of a piston in $S$. However, it can not rest indefinitely and must be moved. It never moves itself due to being immovable upon activation. Hence another piston must exist in $S$.
-    ...
-\end{proof}
+% \begin{lemma}
+%     Any engine must contain at least two pistons.
+% \end{lemma}
 
-\section{Push limit 1 engines}
+% \section{Push limit 1 engines}
 
 \begin{definition}
     Denote by $E_1$ the set $E$ defined under the assumption that push limit is $1$.
 \end{definition}
 
-\begin{lemma}
-    Any engine from $E_1$ must have at least one sticky piston.
-\end{lemma}
-\begin{proof}
-    ...
-\end{proof}
+% \begin{lemma}
+%     Any engine from $E_1$ must have at least one sticky piston.
+% \end{lemma}
+% \begin{proof}
+%     ...
+% \end{proof}
 
-\begin{remark}
-    Note that this lemma is wrong for larger push limits. It is easy to build an engine without sticky pistons with the default push limit of $12$.
-\end{remark}
+% \begin{remark}
+%     Note that this lemma is wrong for larger push limits. It is easy to build an engine without sticky pistons with the default push limit of $12$.
+% \end{remark}
+
+\section{Reductions}
+
+Let us summarize what we have so far. Since we disregarded liquids, entities, and operator blocks like command blocks, the game can now be viewed as follows:
+\begin{enumerate}
+    \item \emph{Structures} are maps $S: \Z^3 \to \Sigma$, where $\Sigma$ is the \emph{alphabet} of in-game blocks, excluding blocks that we explicitly banned. For convenience, \emph{air} is replaced with $\varnothing$.
+    \item We're only interested in structures with \emph{finite support}, as they correspond to finite configurations of blocks.
+    \item $\ev_1$ deterministically evaluates the next state of any structure according to some rule set matching the vanilla Minecraft with push limit $1$.
+    \item Engines are defined as structures with finite support that satisfy $\ev_T S=S+v$ for some $T\in\N$ and $v\in\Z^3\setminus0$.
+\end{enumerate}
+We encode escheduled ticks into the alphabet, and the order of their execution into $\ev$.
+Let's call this the \emph{vanilla model}. The ultimate goal is to prove that engines do not exist. The idea is to create a simplified model of Minecraft that would satisfy these properties:
+\begin{enumerate}
+    \item Any valid engine in the vanilla model must induce a valid engine in the simple model.
+    \item $\Sigma$ is as small as possible.
+    \item The rule set is as small as possible
+    \item $\ev$ of the simple model is allowed to be non-deterministic.
+\end{enumerate}
+
+\subsection{Example 1: Conscious pistons} \label{example:1}
+
+This is a very stupid example, created mainly for presentation.
+
+Let $e_x, e_y, e_z$ be the basis vectors of $\Z^3$ and denote $D=\{\pm e_x, \pm e_y, \pm e_z\}$.
+Consider a simplified model with the following alphabet:
+$$\Sigma=\{P_d : d \in D\} \cup \{\varnothing\}.$$
+We treat this model as a game where we can make moves. Suppose we have a structure $S: \Z^3\to\Sigma$, and
+$S(p)=P_d$ for some $p\in\Z^3,\ d\in D$. We will refer to $P_d$ as to a ``piston'' facing towards $d$.
+\begin{itemize}
+    \item If $S(p+d)=B\neq\varnothing$ and $S(p+2d)=\varnothing$, then our piston can ``push'' $B$ from $p+d$ to $p+2d$.
+    \item If $S(p+d)=\varnothing$ and $S(p+2d)=B\neq\varnothing$, then the piston can ``pull'' $B$ from $p+2d$ to $p+d$.
+    \item Otherwise there're no legal moves for that piston.
+\end{itemize}
+Obviously this makes this model non-deterministic, but in exchange we gain very low complexity, and any engine from the vanilla model trivially embeds into an engine in this model.
+
+This model admits a very simple engine defined by the following structure:
+$$S(0)=P_x, \quad S(e_x)=P_{-x}, \quad S(p)=\varnothing \ \forall p\neq0,e_x.$$
+
+\subsection{Example 2: Conscious pistons with cargo}
+In the previous example, modify the alphabet to also include a ``dead weight'' block $D$. Define engines as before, but explicitly ask that engines must contain at least one $D$.
+Turns out that such engines also exist, so this model is not of any value.
+
+\subsection{Example 3: Game of Pistons 1 (GoP1)} \label{example:gop1}
+Define $$\Sigma=\{P_d : d \in D\} \cup \{\varnothing, R\},$$
+where $R$ represents a very simplified model of a power source. To describe how it interacts pistons, define
+$$A=D\cup(D+e_y)\setminus\{0\}.$$
+In a structure $S$, a piston $P_d$ at $p$ is \emph{active} if and only if there exists $q \in p+(A\setminus\{d\})$, such that $S(q)=R$.
+Active pistons can make moves according to the rule set of \ref{example:1}, by pushing and pulling blocks.
+
+The activation rule adds a lot of complexity, and makes investigating this model highly difficult. Surprisingly, Claude AI managed to find an engine in this model in roughly $4$ hours, see
+https://claude.ai/artifact/KAtdtahmKoTCsagzpbo1TP. It consists of $8$ pistons and $4$ source blocks.
+One cycle of that engine takes $278$ moves to travel $1$ block towards $+x$.
+
+\subsection{Example 4: Game of Pistons 2 (GoP2)}
+Recall that $D=\{\pm e_x, \pm e_y, \pm e_z\}$ and define
+$$\Sigma=\{P_d : d \in D\} \cup \{O_d : d \in D\} \cup \{\varnothing, H\}.$$
+$H$ stands for ``hard-powerable block'', and $O_f$ stand for ``observers''. Similarly to \ref{example:gop1}, we will have activation rules, but this time they're more restrictive. Let
+$$A=D\cup(D+e_y)\setminus\{0\}.$$
+Fix a structure $S: \Z^3\to\Sigma$, and suppose $S(p)=P_d$ for some $p\in\Z^3$, $d\in D$.
+This piston is active if and only if one of the following conditions are met:
+\begin{enumerate}
+    \item There exists $f\in D\setminus\{d\}$ such that $S(p+f)=O_f$.
+    \item There exists $f\in D\setminus\{-e_y\}$ such that $S(p+e_y+f)=O_f$.
+    \item There exist $q\in p+(A\setminus\{d\})$ and $f\in D$, such that $S(q)=H$ and $S(q+f)=O_f$.
+\end{enumerate}
+Only active pistons may push or pull.
+
+A careful reader experienced in Minecraft may notice that this rule set does not encode any abstraction of redstone blocks. Indeed, it doesn't.
+However, if non-existence of an engine in this model is proven, then necessarily all engines in the vanilla model must have redstone blocks.
 
 \end{document}
