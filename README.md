@@ -1,4 +1,4 @@
-<# Formal Flying Machines
+# Formal Flying Machines
 The goal of this repository is to mathematically formalize Minecraft flying machines to ultimately prove that push limit 1 flying machines do not exist.
 
 The project was originally inspired by a slimestone challange proposed by **KK**: is a push limit 2 flying machine possible?
@@ -16,7 +16,7 @@ If any valid engine in Minecraft has a representation in this Reduction, a proof
 
 ## GoP1 reduction
 
-`GoP1_counter_example.lean` affirms statements about a game `GoP1` described in section `Reductions` of `main.pdf`. This reduction has a known counter example (https://claude.ai/artifact/KAtdtahmKoTCsagzpbo1TP).
+`GoP1_counter_example.lean` [~1200 lines] affirms statements about a game `GoP1` described in section `Reductions` of `main.pdf`. This reduction has a known counter example (https://claude.ai/artifact/KAtdtahmKoTCsagzpbo1TP).
 **Note: This counter-example is not a valid vanilla Minecraft Push Limit 1 flying machine !**
 This counter-example only shows that the `GoP1` reduction allows Push Limit 1 engines.
 
@@ -25,9 +25,9 @@ Lean entirely made by Claude Sonnet 5.5 medium on 10/10/2026 in 15 mins (https:/
 
 ## GoP2 reduction
 
-`GoP2_counter_example.lean` affirms statements about a game `GoP2` described in section `Reductions` of `main.pdf`. This reduction has a known counter example (https://claude.ai/artifact/4N5vnEvoadpFVJUuDdv2vp).
+`GoP2_counter_example.lean` [~2500 lines] affirms statements about a game `GoP2` described in section `Reductions` of `main.pdf`. This reduction has a known counter example (https://claude.ai/artifact/4N5vnEvoadpFVJUuDdv2vp).
 **Note: This counter-example is not a valid vanilla Minecraft Push Limit 1 flying machine !**
 This counter-example only shows that the `GoP2` reduction allows Push Limit 1 engines.
 
 The Lean file sets the rules, builds a decider, checks the example works, builds some simple lemmas.
-Lean entirely made by Claude Sonnet 5.5 medium on 11/10/2026 in 15 mins (https://claude.ai/share/feb03dc3-64e1-4846-b6c4-3af80b7fd70b).
+Lean entirely made by Claude Sonnet 5.5 medium on 11/10/2026 in ~25 mins (https://claude.ai/share/33439710-ce7e-4a61-939a-fff47b2e5454).
