@@ -1,4 +1,4 @@
-# Formal Flying Machines
+<# Formal Flying Machines
 The goal of this repository is to mathematically formalize Minecraft flying machines to ultimately prove that push limit 1 flying machines do not exist.
 
 The project was originally inspired by a slimestone challange proposed by **KK**: is a push limit 2 flying machine possible?
