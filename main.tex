@@ -241,10 +241,10 @@ In a structure $S$, a piston $P_d$ at $p$ is \emph{active} if and only if there 
 Active pistons can make moves according to the rule set of \ref{example:1}, by pushing and pulling blocks.
 
 The activation rule adds a lot of complexity, and makes investigating this model highly difficult. Surprisingly, Claude AI managed to find an engine in this model in roughly $4$ hours, see
-https://claude.ai/artifact/KAtdtahmKoTCsagzpbo1TP. It consists of $8$ pistons and $4$ source blocks.
+\url{https://claude.ai/artifact/KAtdtahmKoTCsagzpbo1TP}. It consists of $8$ pistons and $4$ source blocks.
 One cycle of that engine takes $278$ moves to travel $1$ block towards $+x$.
 
-\subsection{Example 4: Game of Pistons 2 (GoP2)}
+\subsection{Example 4: Game of Pistons 2 (GoP2)} \label{example:gop2}
 Recall that $D=\{\pm e_x, \pm e_y, \pm e_z\}$ and define
 $$\Sigma=\{P_d^0, P_d^1 : d \in D\} \cup \{O_d : d \in D\} \cup \{\varnothing, H\}.$$
 $P_d^\eps$ is a piston facing $d$, extended iif $\eps=1$, $H$ stands for ``hard-powerable block''.
@@ -270,5 +270,9 @@ Moves are made one at a time, in any order.
 
 A careful reader experienced in Minecraft may notice that this rule set does not encode any abstraction of redstone blocks. Indeed, it doesn't.
 However, if non-existence of an engine in this model is proven, then necessarily all engines in the vanilla model must have redstone blocks.
+
+After hours of bruteforcing with Claude and SAT solvers, a counter example was discovered: \url{https://claude.ai/artifact/4N5vnEvoadpFVJUuDdv2vp}. It uses $11$ pistons, $1$ solid block and $18$ observers arranged into a ``roof''. The engine essentially pulls observers from the back of the sheet and transfers them to the front. One cycle takes $1388$ elementary moves and translates the engine $1$ block towards $+x$.
+
+This hints that GoP3 must introduce block updates and shape updates to be restrictive enough. We no longer should admit anything resembling ``conscious'' pistons.
 
 \end{document}
